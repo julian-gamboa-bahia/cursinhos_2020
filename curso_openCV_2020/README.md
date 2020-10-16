@@ -1,7 +1,10 @@
-# Cursinhos
+# Cursinho de openCV
 
-Eu considero que um dos deveres de um programador (amante da tecnologia) é o compromisso com a difusão do conhecimento técnico.
-Apesar que neste ano 2020 não tive maior tempo para o preparo de cursos detalhados, me decidi de colocar algumas **apostilhas básicas** neste github público:
+A biblioteca OpenCV (https://opencv.org/) é uma ótima ferramenta, open source, para processar imagens.
 
-+ OpenCV (https://opencv.org/)
-+ AWS Fragarte (https://aws.amazon.com/pt/ecs/)
+Neste curso básico serão estudados os exemplos:
+
++ Deteção de objetos: vemos no script **detector_cortador.py** uma sequencia de passos para usar a rede treinada (https://github.com/OlafenwaMoses/ImageAI) e contida no arquivo: resnet50_coco_best_v2.0.1.h5
+
+
+
