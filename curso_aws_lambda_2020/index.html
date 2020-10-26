@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+<!---link rel="stylesheet" href="css/style.css"-->
+
+
+</head>
+<body>
+<!---Domingo, 25 de Outubro
+Código colocado no repositório:
+
+https://github.com/julian-gamboa-bahia/cursinhos_2020/tree/main/curso_aws_lambda_2020
+
+-->
+<script>
+/*
+* Consulta da API para colocar as informações na tela
+*
+*/
+
+var altura_cartas;
+var data_jogadas;
+
+var indice_desenhaPilhas_Anterior=-1;
+var indice_desenhaPilhas_atual=0;
+var indice_desenhaPilhas_futuro=1;
+var numero_jogadas;
+var resultado;
+
+
+function apiJSONsuccess() {
+    var data = JSON.parse(this.responseText); 
+    
+    data_jogadas=data.jogadas;
+/*
+    console.log("altura_cartas:  "+data["altura_cartas"]);    
+    console.log("numero_jogadas:  "+data["numero_jogadas"]);    
+        console.log(data.jogadas);      
+*/
+    resultado=data.resultado;
+
+    numero_jogadas=data["numero_jogadas"];
+    
+    indice_desenhaPilhas_Anterior++;
+    indice_desenhaPilhas_futuro++;
+    desenhaPilhas(data_jogadas[indice_desenhaPilhas_atual++]);
+}
+
+function apiJSONerror(err) {
+  
+    console.log('Deu Pau Failed', err); 
+}
+
+url="https://45of55mka4.execute-api.us-west-2.amazonaws.com/default/jogo-cartas-coracao-java8";
+
+var xhr = new XMLHttpRequest(); 
+xhr.onload = apiJSONsuccess; 
+xhr.onerror = apiJSONerror; 
+xhr.open('GET', url); 
+xhr.send(); 
+/*
+*
+*
+*/
+
+function aviso() 
+{
+  alert("aviso");
+
+}
+
+function desenhaPilhas(informacoesPilhas) {
+  
+  var verificar_altura = Object.keys(informacoesPilhas).length;
+/*
+  console.log("indice_desenhaPilhas_Anterior: "+indice_desenhaPilhas_Anterior);
+  console.log("indice_desenhaPilhas_atual: "+indice_desenhaPilhas_atual);
+  console.log("indice_desenhaPilhas_futuro: "+indice_desenhaPilhas_futuro);
+  console.log("-----");
+*/
+
+  label_numero_jogada=document.getElementById("label_numero_jogada");
+  label_numero_jogada.innerHTML="Jogada número:  "+indice_desenhaPilhas_atual+" / "+numero_jogadas;
+  
+  btn=document.getElementById("btn-previa");
+  if(indice_desenhaPilhas_Anterior>0)
+  {    
+    btn.style.visibility = "visible";
+  }
+  if(indice_desenhaPilhas_Anterior==0)
+  {   
+    btn.style.visibility = "hidden";
+  }
+
+//Controle Visual do Botão Pŕoxima:
+  btn=document.getElementById("btn-proxima");  
+  if(indice_desenhaPilhas_futuro>numero_jogadas)
+  {
+    btn.style.visibility = "hidden";
+    label_resultado=document.getElementById("label_resultado");
+    label_resultado.innerHTML="Resultado Final:  "+resultado;
+  }
+  else
+  {
+    btn.style.visibility = "visible";
+  }
+
+  var x = document.getElementById("myTable");  
+
+//Limpando a table presente
+    for(var rows=(x.rows.length-1);rows>0;rows--)
+    {
+      x.deleteRow(rows);
+    }
+
+
+  //for (var i_tr = 0; i_tr < AlturaPilhas; i_tr++) {    
+  for (var i_tr = (verificar_altura-1); i_tr >=0; i_tr--) {    
+    var y = document.createElement("TR");
+    y.setAttribute("id", "myTr"+i_tr);
+    document.getElementById("myTableBody").appendChild(y);
+    
+    //for (var i = 0; i < 3; i++) {
+    for (var i = 0; i < 3; i++) {      
+      var z = document.createElement("TD");
+      z.style="text-align:center;";
+
+      var btn = document.createElement('input');
+      btn.type = "button";
+
+      btn.value=informacoesPilhas[i_tr][i];
+      
+      i_tr==(verificar_altura-1) ? btn.className = "btn btn-success" : btn.className = "btn btn-primary";
+      btn.onclick = function() {aviso()};
+
+      if(btn.value!="@")
+      {
+        z.appendChild(btn);
+      }
+      
+      document.getElementById("myTr"+i_tr).appendChild(z);
+    }
+  }
+ 
+}
+</script>
+<!---manipular rows-->
+
+
+
+<button id="btn-previa" onclick="indice_desenhaPilhas_atual--;indice_desenhaPilhas_futuro--;desenhaPilhas(data_jogadas[--indice_desenhaPilhas_Anterior])">
+  Ver jogada prévia
+</button>
+<script>    
+  btn=document.getElementById("btn-previa");  
+  btn.style.visibility = "hidden";
+</script>
+<br>
+<button id="btn-proxima" onclick="indice_desenhaPilhas_Anterior++;indice_desenhaPilhas_futuro++;desenhaPilhas(data_jogadas[indice_desenhaPilhas_atual++])">
+  Ver próxima jogada  
+</button>
+<br>
+<label id="label_numero_jogada"></label>
+<label id="label_resultado"></label>
+
+<div class="container">
+  <div class="table-responsive">              
+  <table class="table table-responsive" id="myTable">
+    <thead>
+      <tr style="text-align:center;">
+        <th  style="text-align:center;">Pilha 1</th>
+        <th  style="text-align:center;">Pilha 2</th>
+        <th  style="text-align:center;">Pilha 3</th>
+      </tr>
+    </thead>
+    <tbody id="myTableBody">
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</body>
+</html>
