@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</head>
+
+<style>
+    li {
+      font-family: sans-serif;
+      background-color:gold;      
+      clear: both;
+      padding: 5px;
+      list-style-type: none;
+      margin: 10px;
+      border-radius: 5px;
+    }
+</style>
+
+<body>
+<!---Quinta, 29 de Outubro
+Código colocado no repositório:
+
+-->
+
+<script>
+
+function graficar_saida(data_key)
+{
+
+  //Eliminados as cores Iniciais desta matriz
+  for(var i=1;i<=tamanho_grafo;i++)
+  {
+    for(var j=1;j<=tamanho_grafo;j++)
+    {
+      id_btn="btn_elemento_matriz"+"-"+i+"-"+j;
+    //console.log(id_btn);
+      btn_matriz=document.getElementById(id_btn);
+      btn_matriz.className="btn btn-basic";    
+    }
+  }
+
+  for(var i=0;i<data_key.length;i++)
+  {
+    key_i=data_key[i]["inicio"]+1;
+    key_j=data_key[i]["fim"]+1;
+    
+    id_btn="btn_elemento_matriz"+"-"+key_i+"-"+key_j;
+
+    //console.log(id_btn);
+
+    btn_matriz=document.getElementById(id_btn);
+    btn_matriz.className="btn btn-danger";
+  }
+}
+
+function apiJSONsuccess() {
+    var data = JSON.parse(this.responseText); 
+
+    //console.log(data);      
+    
+    Object.keys(data).forEach(function(key) {
+      
+      if(key=="arvoreSAIDA")
+      {
+        graficar_saida(data[key]);   
+      }
+      
+    });  
+
+}
+
+function apiJSONerror(err) {
+  
+    console.log('Deu Pau Failed', err); 
+}
+
+
+
+var tamanho_grafo=0;
+
+function enviar_grafo()
+{
+  for(var i=1;i<=tamanho_grafo;i++)
+  {
+        for(var j=1;j<=tamanho_grafo;j++)
+        {
+          btn_matriz=document.getElementById("btn_elemento_matriz"+"-"+i+"-"+j);
+          if(btn_matriz.className!="btn btn-primary")
+          {
+            btn_matriz.value=0;
+          }          
+        }
+  }      
+//Leitura de cada elemento da matriz
+
+  var sequencia_matriz="";
+  for(var i=1;i<=tamanho_grafo;i++)
+  {
+        for(var j=1;j<=tamanho_grafo;j++)
+        {
+          btn_matriz=document.getElementById("btn_elemento_matriz"+"-"+i+"-"+j);
+          value=btn_matriz.value;
+          (j==1) ?  sequencia_matriz=sequencia_matriz+value : sequencia_matriz=sequencia_matriz+","+value;          
+        }
+        (i!=tamanho_grafo) ?  sequencia_matriz=sequencia_matriz+";" : sequencia_matriz;
+
+  }
+//Construindo os QueryParameter que serão enviados com o método GET na API
+      numero_vertices=tamanho_grafo;
+
+      conexoes_vertices=sequencia_matriz;
+
+url="https://wx8c58ig50.execute-api.us-west-2.amazonaws.com/default/algoritmoPRIM?numero_vertices="+numero_vertices+"&conexoes_vertices="+conexoes_vertices;
+
+console.log(url);
+          //console.log(sequencia_matriz);
+
+
+      var xhr = new XMLHttpRequest(); 
+      xhr.onload = apiJSONsuccess; 
+      xhr.onerror = apiJSONerror; 
+      xhr.open('GET', url); 
+      xhr.send(); 
+
+      document.getElementById("enviar-grafo").style.visibility="hidden";
+/////////////////
+}
+  
+
+/*
+* De forma manual serão colocados os pessos de cada ARESTA
+*/
+
+function indicar_peso_vertice(coordenada_x,coordenada_y,button)
+{
+  button.className = "btn btn-primary";
+  var person = prompt("Por favor indique o valor do peso desta aresta");
+
+  if ((person != null) && (parseInt(person)>=0)){
+    button.value=person;
+  }
+}
+
+/*
+*
+*/
+
+function criar_grafo()
+{
+
+    var historico = document.getElementById("historico");
+    historico.remove();
+
+    //Esconde-se os elementos usando para indicar o Tamanho do Grafo    
+    document.getElementById('tamanho-grafo').disabled = true;
+
+    //Coleta-se o tamanho-grafo e esconde-se o mesmo
+    input=document.getElementById("tamanho-grafo");
+    input.style.visibility = "hidden";
+    //Esconde-se o botão
+    document.getElementById("criar-grafo").style.visibility="hidden";
+
+    tamanho_grafo=input.value;
+
+    if(tamanho_grafo>10)
+    {
+        tamanho_grafo=10;
+    }
+
+    
+    document.getElementById("enviar-grafo").style.visibility="visible";
+
+
+    for (var i_tr = 1; i_tr <= tamanho_grafo; i_tr++) 
+    {    
+        var y = document.createElement("TR");    
+        y.setAttribute("id", "myTr"+i_tr);
+
+        document.getElementById("myTableBody").appendChild(y);    
+    
+        for (var i = 1; i <= tamanho_grafo; i++) {      
+            var z = document.createElement("TD");
+            z.style="text-align:center;";
+
+            var btn = document.createElement('input');
+            btn.type = "button";
+
+            var btn = document.createElement('input');
+            btn.type = "button";
+            btn.id="btn_elemento_matriz-"+i_tr+"-"+i;
+
+            //Para EVITAR que sejam colocas arestas cujo origem e fim sejam o mesmo vertice
+
+            if(i_tr!=i)
+            {
+              btn.value="("+i_tr+","+i+")";
+              btn.addEventListener('click', function(a1,a2) { 
+              return function () {
+                indicar_peso_vertice(a1,a2,this);
+              };
+              }(i_tr,i), true);
+            }
+            else
+            {
+              btn.value=0;
+              btn.className = "btn btn-success"
+            }
+
+
+            z.appendChild(btn);
+            document.getElementById("myTr"+i_tr).appendChild(z);
+        }
+    }
+/////////// 
+}
+</script>
+
+<label id="historico">Histórico:</label>
+<br>
+
+<script>
+
+url="https://6rak63ql01.execute-api.us-west-2.amazonaws.com/default/grafos_db_algoritmos";
+
+console.log(url);
+
+function aproveitar_grafo_antigo(str_historico_APROVEITAR,tamanho_grafo_APROVEITAR)
+{
+  tamanho_grafo=tamanho_grafo_APROVEITAR;
+  if (confirm("Deseja mesmo aproveitar este grafo")) 
+  {
+//Esconde,Esconde,Esconde,Esconde,Esconde o Histórico:    
+    var historico = document.getElementById("historico");
+    historico.remove();
+    //Esconde-se os elementos usando para indicar o Tamanho do Grafo    
+    document.getElementById('tamanho-grafo').disabled = true;
+    //Coleta-se o tamanho-grafo e esconde-se o mesmo
+    input=document.getElementById("tamanho-grafo");
+    input.style.visibility = "hidden";
+    //Esconde-se o botão
+    document.getElementById("criar-grafo").style.visibility="hidden";    
+    document.getElementById("enviar-grafo").style.visibility="visible";
+
+    FILAS_str_historico_APROVEITAR=str_historico_APROVEITAR.split(";");
+    for (var i_tr = 1; i_tr <= tamanho_grafo_APROVEITAR; i_tr++) 
+    {    
+        var y = document.createElement("TR");    
+        y.setAttribute("id", "myTr"+i_tr);
+
+        document.getElementById("myTableBody").appendChild(y);    
+    
+        for (var i = 1; i <= tamanho_grafo_APROVEITAR; i++) {      
+            var z = document.createElement("TD");
+            z.style="text-align:center;";
+
+            var btn = document.createElement('input');
+            btn.type = "button";
+
+            var btn = document.createElement('input');
+            btn.type = "button";
+            btn.id="btn_elemento_matriz-"+i_tr+"-"+i;
+
+            //Para EVITAR que sejam colocas arestas cujo origem e fim sejam o mesmo vertice
+            COLUNAS_str_historico_APROVEITAR=FILAS_str_historico_APROVEITAR[i_tr-1].split(",");
+            if(i_tr!=i)
+            {
+              btn.value=COLUNAS_str_historico_APROVEITAR[i-1];
+              btn.className="btn btn-primary";
+              btn.addEventListener('click', function(a1,a2) { 
+              return function () {
+                indicar_peso_vertice(a1,a2,this);
+              };
+              }(i_tr,i), true);
+            }
+            else
+            {
+              btn.value=0;
+              btn.className = "btn btn-success"
+            }
+
+
+            z.appendChild(btn);
+            document.getElementById("myTr"+i_tr).appendChild(z);
+        }
+    }
+  } 
+}
+
+function HISTORICO_apiJSONsuccess () {
+
+  var data = JSON.parse(this.responseText); 
+
+  var historico = document.getElementById("historico");
+
+  if(data.numero_registros_DB>0)  
+  {
+    for (var i = 0; i < data.numero_registros_DB; i++) 
+    {
+      var listItem = document.createElement("li");
+
+      var p_comentario = document.createElement("p");      
+      var p_dimension = document.createElement("p");
+      
+      dimensao=data.historico[i]['dimensao'];
+      p_dimension.textContent = "dimensao:  "+dimensao;
+
+      p_comentario.textContent = data.historico[i]['comentario'];
+      p_comentario.style.backgroundColor="white";
+
+      str_historico=data.historico[i]['matriz'];
+      
+      listItem.appendChild(p_dimension);
+      listItem.appendChild(p_comentario);
+      
+      str_historico_SPLIT=str_historico.split(";");
+      
+      for(var j=0;j<dimensao;j++)
+      {
+        var p_matriz = document.createElement("p");
+        p_matriz.textContent = str_historico_SPLIT[j];
+        listItem.appendChild(p_matriz);
+      }
+
+      listItem.addEventListener('click', function(str_historico_APROVEITAR,tamanho_grafo_APROVEITAR) 
+      { 
+        return function () {
+                aproveitar_grafo_antigo(str_historico_APROVEITAR,tamanho_grafo_APROVEITAR);
+              };
+      }(str_historico,dimensao), true);
+
+      historico.appendChild(listItem);
+    }
+  }
+  else
+  {
+    historico.remove();
+  }
+    var data = JSON.parse(this.responseText);    
+
+}
+
+function HISTORICO_apiJSONerror(err) {
+  
+    console.log('Deu Pau Failed', err); 
+}
+
+      var xhr = new XMLHttpRequest(); 
+      xhr.onload = HISTORICO_apiJSONsuccess; 
+      xhr.onerror = HISTORICO_apiJSONerror; 
+      xhr.open('GET', url); 
+      xhr.send(); 
+
+</script>
+
+<br>
+
+<!---Grafo-->
+<input id="tamanho-grafo" type="number" value="5" min="3" max="10" step="1"/>
+
+<button id="criar-grafo" onclick="criar_grafo();">
+  Criar Grafo
+</button>
+
+
+<div class="container">
+  <div class="table-responsive">              
+  <table class="table table-responsive" id="myTable">
+    <tbody id="myTableBody">
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!---Enviar Grafo-->
+<button id="enviar-grafo" onclick="enviar_grafo();" style="visibility: hidden;">
+  Enviar Grafo
+</button>
+
+</body>
+</html>
+
