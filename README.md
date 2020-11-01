@@ -5,3 +5,7 @@ Apesar que neste ano 2020 não tive maior tempo para o preparo de cursos detalha
 
 + OpenCV (https://opencv.org/)
 + AWS Fragarte (https://aws.amazon.com/pt/ecs/)
++ AWS lambda (https://aws.amazon.com/pt/lambda/)
++ Python para AWS lambda (./curso_python_2020/lambda.py)
++ Java para AWS lambda (./curso_java_2020/CoracaoCartas.java)
++ Node para AWS lambda 
